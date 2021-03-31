@@ -1,4 +1,4 @@
-const flattenObject = require('./flattenObject');
+const encode = require('./encode');
 
 // Sample input:
 const sampleJson = {
@@ -20,5 +20,5 @@ const encodedSample = {
 }
 
 test('flatten sample JSON to single depth OBJ', () => {
-  expect(flattenObject(sampleJson)).toStrictEqual(encodedSample);
+  expect(encode(sampleJson)).toStrictEqual(encodedSample);
 });

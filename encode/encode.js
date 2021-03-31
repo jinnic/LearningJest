@@ -5,45 +5,66 @@
 
 // Create a `decode` function that takes the string array and transforms it back into the original JSON data structure.
 // */
-
-const flattenObject = (obj, prefix = '') =>{
-  return Object.keys(obj).reduce((acc, k) => {
-    const pre = prefix.length ? `${prefix}-` : '';
-    if (
-      typeof obj[k] === 'object' &&
-      obj[k] !== null &&
-      Object.keys(obj[k]).length > 0
-    )
-      Object.assign(acc, flattenObject(obj[k], pre + k));
-    else acc[pre + k] = obj[k];
-    return acc;
-  }, {});
+// sample json
+const sampleJson = {
+  "car": {
+    "color": "blue",
+    "year": 1999,
+    "broken": [
+      "left mirror",
+      "right door"
+    ]
+  },
 }
 
-// flattenObject({
-//   car: {
-//     color: "blue",
-//     year: 1999,
-//     broken: ["left mirror", "right door"],
-//   },
-// });
-
-
-
-
-
-
-
-
 // // Sample output string array (remember this encoding is arbitrary and is up to you!):
-// const encodedSample = [
-//   'car/color="blue"',
-//   'car/year=1999',
-//   'car/broken[0]="left mirror"',
-//   'car/broken[1]="right door"'
-// ]
+const encodedSample = [
+  'car-color="blue"',
+  'car-year=1999',
+  'car-broken-0="left mirror"',
+  'car-broken-1="right door"'
+]
 
 
+// // Helper function to determine the leaf node type of a JSON value.
+// //   nodeType({})    // 'object'
+// //   nodeType([])    // 'array'
+// //   nodeType(null)  // 'primitive'
+// //   nodeType('str') // 'primitive'
+// //   nodeType(123)   // 'primitive'
+// //   nodeType(true)  // 'primitive'
+function getNodeType(value) {
+  if (value === null)
+    return 'primitive'
+  if (Array.isArray(value))
+    return 'array'
+  if (typeof value === 'object')
+    return 'object'
+  else
+    return 'primitive'
+}
+
+const encode = (json, prevKey = '') =>{
+  const flattenOBJ = Object.keys(json).reduce((acc, k) => {
+    const pre = prevKey.length ? `${prevKey}-` : '';
+    if (
+      typeof json[k] === 'object' &&
+      json[k] !== null &&
+      Object.keys(json[k]).length > 0
+    ){
+      Object.assign(acc, encode(json[k], pre + k));
+    }else{
+      acc[pre + k] = json[k];
+    }
+    return acc;
+  }, {});
+
+  return flattenOBJ
+}
+
+console.log(encode(sampleJson))
+
+//https://emberigniter.com/transform-any-data-structure-with-javascript-reduce
 // //encode : JSON -> array
 // const encode = (json, prevKey = '') =>{
 
@@ -111,32 +132,6 @@ const flattenObject = (obj, prefix = '') =>{
 //     }, {})
 // }
 
-// /*
-// blue [ 'car', 'color' ] -> ['car-color'] or [ ['car','color']]
-// 1999 [ 'car', 'color', 'year' ] -> ['car-color', 'car-year'] or [ ['car','color'], ['car, 'year]]
-// */
 
 
-
-
-// const arr = []
-// encode(sampleJson)
-// // Helper function to determine the leaf node type of a JSON value.
-// //   nodeType({})    // 'object'
-// //   nodeType([])    // 'array'
-// //   nodeType(null)  // 'primitive'
-// //   nodeType('str') // 'primitive'
-// //   nodeType(123)   // 'primitive'
-// //   nodeType(true)  // 'primitive'
-// function getNodeType(value) {
-//   if (value === null)
-//     return 'primitive'
-//   if (Array.isArray(value))
-//     return 'array'
-//   if (typeof value === 'object')
-//     return 'object'
-//   else
-//     return 'primitive'
-// }
-
- module.exports = flattenObject;
+ module.exports = encode;
